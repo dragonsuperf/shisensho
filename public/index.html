@@ -1,0 +1,74 @@
+<html>
+  <header>
+    <style>
+      .block {
+        background: pink;
+      }
+
+      .selected {
+        background: orange;
+      }
+      
+      .empty {
+        border: 0.5px solid transparent;
+      }
+      
+      .cell {
+        border: 0.5px solid black;
+        width: 49px;
+        height: 49px;
+      }
+
+      .board {
+        display: grid;
+        grid-template-columns: repeat(20, 50px);
+        grid-template-rows: repeat(20, 50px);
+        width: 1000px;
+        height: 1000px;
+        background: gainsboro;
+      }
+
+      .bottom-line::after {
+        content: '';
+        display: block;
+        height: 50px;
+        width: 2px;
+        transform: translate(25px, 25px);
+        background-color: black; 
+      }
+
+      .top-line::after {
+        content: '';
+        display: block;
+        height: 50px;
+        width: 2px;
+        transform: translate(25px, -25px);
+        background-color: black; 
+      }
+
+      .right-line::after {
+        content: '';
+        display: block;
+        height: 2px;
+        width: 50px;
+        transform: translate(-25px, 25px);
+        background-color: black; 
+      }
+
+      .left-line::after {
+        content: '';
+        display: block;
+        height: 2px;
+        width: 50px;
+        transform: translate(25px, 25px);
+        background-color: black; 
+      }
+    </style>
+    <script src="../src/index.ts"></script>
+  </header>
+  <body>
+    <div id="board" class="board">
+    </div>
+  </body>
+  <footer></footer>
+</html>
