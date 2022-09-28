@@ -1,4 +1,4 @@
-import { AStarFinder } from 'astar-typescript';
+import { AStarFinder } from './astar/astar';
 
 interface Point {
   x: number;
@@ -26,13 +26,12 @@ document.addEventListener('DOMContentLoaded', () => {
   function initGameBoard() {
     if (gameBoard === null) return;
 
-    console.log(matrix);
-
     for (let i = 0 ; i < matrix.length; i++) {
       const row = matrix[i];
       for (let j = 0; j < row.length; j++) {
         const newCell = doc.createElement('div');
         newCell.classList.add('cell');
+        //newCell.textContent = `${j},${i}`;
         newCell.id = `index-${j}-${i}`;
         
         if (!row[j].getIsWalkable()) {
@@ -99,8 +98,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const end = idToXY(selectedList[1].id);
     setIsWalkable(start, true);
     setIsWalkable(end, true);
-    console.log(start);
-    console.log(end);
 
     const path = aStarInstance.findPath(start, end);
 
@@ -110,6 +107,7 @@ document.addEventListener('DOMContentLoaded', () => {
       setIsWalkable(start, false);
       setIsWalkable(end, false);
       selectedList.splice(0, 2);
+      updateCells();
     }
   }
 
