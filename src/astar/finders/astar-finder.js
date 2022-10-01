@@ -31,7 +31,8 @@ class AStarFinder {
         // Set weight
         this.weight = aParams.weight || 1;
     }
-    findPath(startPosition, endPosition) {
+    
+    findPath(startPosition, endPosition, failPositions = []) {
         // Reset lists
         this.closedList = [];
         this.openList = [];
@@ -70,12 +71,19 @@ class AStarFinder {
             }
         }
         // As long the open list is not empty, continue searching a path
-        let turnCount = 0;
+        let isFirst = true;
+        let firstNeighborsCount = 0;
+        let neighborsCount = 0;
+        let failPositionCandidate = null;
         while (this.openList.length !== 0) {
             // Get node with lowest f value
             const currentNode = lodash_1.minBy(this.openList, (o) => {
                 return o.getFValue();
             });
+            if (currentNode.getParent() !== undefined && isFirst) {
+                isFirst = false;
+                failPositionCandidate = currentNode.position;
+            }
             
             // Move current node from open list to closed list
             currentNode.setIsOnOpenList(false);
@@ -84,7 +92,11 @@ class AStarFinder {
             this.closedList.push(currentNode);
             // End of path is reached
             if (currentNode === endNode) {
-                return util_1.backtrace(endNode, this.includeStartNode, this.includeEndNode);
+                const resultArr = util_1.backtrace(endNode, this.includeStartNode, this.includeEndNode);
+                if (resultArr.length === 0 && failPositions.length < firstNeighborsCount) {
+                    return this.findPath(startPosition, endPosition, [...failPositions, failPositionCandidate]);
+                }
+                return resultArr; 
             }
             // Get neighbors
             const neighbors = this.grid.getSurroundingNodes(currentNode.position, this.diagonalAllowed);
@@ -96,6 +108,8 @@ class AStarFinder {
                     continue;
                 }
 
+                if (firstNeighborsCount === 0) neighborsCount++;
+
                 // 방향을 바꾸면 더 큰 비용을 지불하도록
                 let turnValue = 0;
                 if (currentNode.getParent() !== undefined) {
@@ -103,7 +117,15 @@ class AStarFinder {
                 }
 
                 // Calculate the g value of the neightbor
-                const nextGValue = currentNode.getGValue() + turnValue +
+                let failValue = 0;
+                failPositions.some((failPosition) => {
+                    if (neightbor.position.x === failPosition.x && neightbor.position.y === failPosition.y) {
+                        failValue = 500;
+                        return;
+                    }
+                });
+
+                const nextGValue = currentNode.getGValue() + turnValue + failValue +
                     (neightbor.position.x !== currentNode.position.x ||
                         neightbor.position.y == currentNode.position.y
                         ? this.weight
@@ -124,6 +146,7 @@ class AStarFinder {
                     }
                 }
             }
+            if (firstNeighborsCount === 0) firstNeighborsCount = neighborsCount;
         }
         // Path could not be created
         return [];
