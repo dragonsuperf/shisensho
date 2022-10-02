@@ -1,9 +1,21 @@
 import { AStarFinder } from "./astar/astar";
 import { Node } from "./astar/core/node";
 
+const oneToNineArr =  ['1', '2', '3', '4', '5', '6', '7', '8', '9'];
+const originMahjongArr = [...oneToNineArr.map((value) => `man${value}`), ...oneToNineArr.map((value) => `tong${value}`),
+                             ...oneToNineArr.map((value) => `sac${value}`), 'east', 'west', 'south', 'north',
+                             'white', 'center', 'shoot'];
+const mahjongArr = [...originMahjongArr, ...originMahjongArr];
+const gameSize = 15;
+
 interface Point {
   x: number;
   y: number;
+}
+
+interface ShisenshoMatrix {
+  nodes: Node[][];
+  types: string[][];
 }
 
 const MAX_SELECT = 2;
@@ -12,7 +24,7 @@ export class Game {
   private doc: Document;
   private gameBoard: HTMLElement;
   private aStarInstance: AStarFinder;
-  private matrix: Node[][];
+  private matrix: ShisenshoMatrix;
   private cellList: HTMLDivElement[][];
   private selectedList: HTMLDivElement[];
 
@@ -21,30 +33,36 @@ export class Game {
     this.gameBoard = gameBoard;
     this.aStarInstance = new AStarFinder({
       grid: {
-        width: 20,
-        height: 20,
-        densityOfObstacles: 4,
+        width: gameSize,
+        height: gameSize,
+        densityOfObstacles: 3,
       },
       diagonalAllowed: false,
       heuristic: 'Manhattan',
     });
-    this.matrix = this.aStarInstance.getGrid().getGridNodes();
-    this.cellList = Array.from(Array(20), () => new Array(20));
+    this.matrix = { nodes: this.aStarInstance.getGrid().getGridNodes(), types: Array.from(Array(gameSize), () => new Array(gameSize)) };
+    this.cellList = Array.from(Array(gameSize), () => new Array(gameSize));
     this.selectedList = [];
   }
 
   public initGameBoard() {
-    for (let i = 0 ; i < this.matrix.length; i++) {
-      const row = this.matrix[i];
+    let count = 0;
+    for (let i = 0 ; i < this.matrix.nodes.length; i++) {
+      const row = this.matrix.nodes[i];
       for (let j = 0; j < row.length; j++) {
         const newCell = this.doc.createElement('div');
         newCell.classList.add('cell');
-        //newCell.textContent = `${j},${i}`;
         newCell.id = `index-${j}-${i}`;
         
         if (!row[j].getIsWalkable()) {
           newCell.classList.add('block');
+
+          let currentMahjong = this.selectRandomMahjong();
+          this.matrix.types[i][j] = currentMahjong;
+          newCell.textContent = currentMahjong;
+          count++;
         }
+
         this.cellList[j][i] = newCell;
         this.gameBoard.appendChild(newCell);
       }
@@ -83,6 +101,13 @@ export class Game {
     }
   }
 
+  selectRandomMahjong() {
+    const selectedIndex = Math.floor(Math.random() * mahjongArr.length);
+    const selected = mahjongArr[selectedIndex];
+    mahjongArr.splice(selectedIndex, 1);
+    return selected;
+  }
+
   idToXY(id: string) {
     const [_, x, y] = id.split('-');
 
@@ -97,7 +122,10 @@ export class Game {
         cell.classList.remove('right-line');
         cell.classList.remove('bottom-line');
         cell.classList.remove('top-line');
-        if (this.matrix[y][x].getIsWalkable()) cell.classList.remove('block');
+        if (this.matrix.nodes[y][x].getIsWalkable()) {
+          cell.classList.remove('block');
+          cell.textContent = '';
+        }
       })
     });
 
@@ -107,7 +135,7 @@ export class Game {
   }
 
   setIsWalkable({ x, y }: Point, flag: boolean) {
-    this.matrix[y][x].setIsWalkable(flag);
+    this.matrix.nodes[y][x].setIsWalkable(flag);
   }
 
   checkDirection(start: Point, end: Point) {
@@ -143,6 +171,13 @@ export class Game {
   pathFinding() {
     const start = this.idToXY(this.selectedList[0].id);
     const end = this.idToXY(this.selectedList[1].id);
+
+    if (this.matrix.types[start.y][start.x] !== this.matrix.types[end.y][end.x]) {
+      this.clearSelect();
+      console.log('wrong type');
+      return;
+    }
+
     this.setIsWalkable(start, true);
     this.setIsWalkable(end, true);
 

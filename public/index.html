@@ -17,51 +17,60 @@
         border: 0.5px solid black;
         width: 49px;
         height: 49px;
+        position: relative;
       }
 
       .board {
         display: grid;
-        grid-template-columns: repeat(20, 50px);
-        grid-template-rows: repeat(20, 50px);
-        width: 1000px;
-        height: 1000px;
+        grid-template-columns: repeat(15, 50px);
+        grid-template-rows: repeat(15, 50px);
+        width: 750px;
+        height: 750px;
         background: gainsboro;
       }
 
-      .bottom-line::after {
+      .bottom-line::before {
         content: '';
         display: block;
         height: 50px;
         width: 2px;
         transform: translate(25px, 25px);
         background-color: black; 
+        position: fixed;
+        z-index: 99;
       }
 
-      .top-line::after {
+      .top-line::before {
         content: '';
         display: block;
         height: 50px;
         width: 2px;
         transform: translate(25px, -25px);
         background-color: black; 
+        position: fixed;
+        z-index: 99;
       }
 
-      .right-line::after {
+      .right-line::before {
         content: '';
         display: block;
         height: 2px;
         width: 50px;
         transform: translate(-25px, 25px);
         background-color: black; 
+        position: fixed;
+        z-index: 99;
       }
 
-      .left-line::after {
+      .left-line::before {
         content: '';
         display: block;
         height: 2px;
         width: 50px;
         transform: translate(25px, 25px);
         background-color: black; 
+        position: fixed;
+        z-index: 99;
       }
     </style>
     <script src="../src/index.ts"></script>
