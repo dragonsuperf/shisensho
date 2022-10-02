@@ -1,0 +1,79 @@
+@font-face {
+  font-family: Mahjong;
+  src: url(/public/assets/fonts/mahjong.ttf);
+  font-weight: 600;
+  font-style: normal;
+}
+
+.block {
+  background: pink;
+}
+
+.selected {
+  background: orange;
+}
+
+.empty {
+  border: 0.5px solid transparent;
+}
+
+.cell {
+  font-family: 'Mahjong', sans-serif;
+  border: 0.5px solid black;
+  width: 49px;
+  height: 49px;
+  position: relative;
+}
+
+.board {
+  display: grid;
+  grid-template-columns: repeat(15, 50px);
+  grid-template-rows: repeat(15, 50px);
+  width: 750px;
+  height: 750px;
+  background: gainsboro;
+}
+
+.bottom-line::before {
+  content: '';
+  display: block;
+  height: 50px;
+  width: 2px;
+  transform: translate(25px, 25px);
+  background-color: black; 
+  position: fixed;
+  z-index: 99;
+}
+
+.top-line::before {
+  content: '';
+  display: block;
+  height: 50px;
+  width: 2px;
+  transform: translate(25px, -25px);
+  background-color: black; 
+  position: fixed;
+  z-index: 99;
+}
+
+.right-line::before {
+  content: '';
+  display: block;
+  height: 2px;
+  width: 50px;
+  transform: translate(-25px, 25px);
+  background-color: black; 
+  position: fixed;
+  z-index: 99;
+}
+
+.left-line::before {
+  content: '';
+  display: block;
+  height: 2px;
+  width: 50px;
+  transform: translate(25px, 25px);
+  background-color: black; 
+  position: fixed;
+  z-index: 99;
+}

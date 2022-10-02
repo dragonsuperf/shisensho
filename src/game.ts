@@ -60,6 +60,7 @@ export class Game {
           let currentMahjong = this.selectRandomMahjong();
           this.matrix.types[i][j] = currentMahjong;
           newCell.textContent = currentMahjong;
+          newCell.textContent = '#';
           count++;
         }
 
