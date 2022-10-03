@@ -20,16 +20,18 @@
 .cell {
   font-family: 'Mahjong', sans-serif;
   border: 0.5px solid black;
-  width: 49px;
+  width: 41px;
   height: 49px;
   position: relative;
+  text-align: center;
+  font-size: 50px;
 }
 
 .board {
   display: grid;
-  grid-template-columns: repeat(15, 50px);
+  grid-template-columns: repeat(15, 42px);
   grid-template-rows: repeat(15, 50px);
-  width: 750px;
+  width: 630px;
   height: 750px;
   background: gainsboro;
 }
@@ -39,7 +41,7 @@
   display: block;
   height: 50px;
   width: 2px;
-  transform: translate(25px, 25px);
+  transform: translate(21px, 25px);
   background-color: black; 
   position: fixed;
   z-index: 99;
@@ -50,7 +52,7 @@
   display: block;
   height: 50px;
   width: 2px;
-  transform: translate(25px, -25px);
+  transform: translate(21px, -25px);
   background-color: black; 
   position: fixed;
   z-index: 99;
@@ -60,8 +62,8 @@
   content: '';
   display: block;
   height: 2px;
-  width: 50px;
-  transform: translate(-25px, 25px);
+  width: 43px;
+  transform: translate(-21px, 25px);
   background-color: black; 
   position: fixed;
   z-index: 99;
@@ -71,8 +73,8 @@
   content: '';
   display: block;
   height: 2px;
-  width: 50px;
-  transform: translate(25px, 25px);
+  width: 43px;
+  transform: translate(21px, 25px);
   background-color: black; 
   position: fixed;
   z-index: 99;

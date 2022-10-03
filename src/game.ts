@@ -2,9 +2,9 @@ import { AStarFinder } from "./astar/astar";
 import { Node } from "./astar/core/node";
 
 const oneToNineArr =  ['1', '2', '3', '4', '5', '6', '7', '8', '9'];
-const originMahjongArr = [...oneToNineArr.map((value) => `man${value}`), ...oneToNineArr.map((value) => `tong${value}`),
-                             ...oneToNineArr.map((value) => `sac${value}`), 'east', 'west', 'south', 'north',
-                             'white', 'center', 'shoot'];
+const alphabets = Array(26).fill(0).map((_, index) => String.fromCharCode(97 + index)).filter((a) => a !== 'p');
+const originMahjongArr = [...oneToNineArr, 
+                          ...alphabets];
 const mahjongArr = [...originMahjongArr, ...originMahjongArr];
 const gameSize = 15;
 
@@ -60,7 +60,6 @@ export class Game {
           let currentMahjong = this.selectRandomMahjong();
           this.matrix.types[i][j] = currentMahjong;
           newCell.textContent = currentMahjong;
-          newCell.textContent = '#';
           count++;
         }
 
@@ -175,7 +174,6 @@ export class Game {
 
     if (this.matrix.types[start.y][start.x] !== this.matrix.types[end.y][end.x]) {
       this.clearSelect();
-      console.log('wrong type');
       return;
     }
 
