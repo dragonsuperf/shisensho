@@ -5,6 +5,17 @@
   font-style: normal;
 }
 
+@font-face {
+  font-family: Miraero;
+  src: url(/public/assets/fonts/MiraeroNormal.ttf);
+  font-weight: 400;
+  font-style: normal;
+}
+
+body {
+  font-family: Miraero;
+}
+
 .block {
   background: pink;
 }
@@ -34,6 +45,15 @@
   width: 630px;
   height: 750px;
   background: gainsboro;
+}
+
+.panel {
+  width: 614px;
+  height: 100px;
+  margin-top: 5px;
+  border-radius: 5px;
+  padding: 8px;
+  border: 1px solid black;
 }
 
 .bottom-line::before {

@@ -22,15 +22,37 @@ const MAX_SELECT = 2;
 
 export class Game {
   private doc: Document;
+  private root: HTMLElement;
+  private solveableCountSpan: HTMLElement;
   private gameBoard: HTMLElement;
   private aStarInstance: AStarFinder;
   private matrix: ShisenshoMatrix;
   private cellList: HTMLDivElement[][];
+  private blockList: Point[];
   private selectedList: HTMLDivElement[];
 
-  constructor(doc: Document, gameBoard: HTMLElement) {
+  constructor(doc: Document, root: HTMLElement) {
     this.doc = doc;
+    this.root = root;
+    
+    const gameBoard = doc.createElement('div');
+    gameBoard.classList.add('board');
+    this.root.appendChild(gameBoard);
+
     this.gameBoard = gameBoard;
+
+    const gamePanel = doc.createElement('div');
+    gamePanel.classList.add('panel');
+    this.root.appendChild(gamePanel);
+
+    const fixedSpan = doc.createElement('span');
+    fixedSpan.textContent = '클리어 가능한 블록 수: ';
+    gamePanel.appendChild(fixedSpan);
+
+    const solveableCountSpan = doc.createElement('span');
+    gamePanel.appendChild(solveableCountSpan);
+    this.solveableCountSpan = solveableCountSpan;
+
     this.aStarInstance = new AStarFinder({
       grid: {
         width: GAME_SIZE,
@@ -40,9 +62,11 @@ export class Game {
       diagonalAllowed: false,
       heuristic: 'Manhattan',
     });
+
     this.matrix = { nodes: this.aStarInstance.getGrid().getGridNodes(), types: Array.from(Array(GAME_SIZE), () => new Array(GAME_SIZE)) };
     this.cellList = Array.from(Array(GAME_SIZE), () => new Array(GAME_SIZE));
     this.selectedList = [];
+    this.blockList = [];
   }
 
   public initGameBoard() {
@@ -56,6 +80,8 @@ export class Game {
         if (!row[j].getIsWalkable()) {
           newCell.classList.add('block');
 
+          this.blockList.push({ x: j, y: i });
+
           let currentMahjong = this.selectRandomMahjong();
           this.matrix.types[i][j] = currentMahjong;
           newCell.textContent = currentMahjong;
@@ -65,6 +91,8 @@ export class Game {
         this.gameBoard.appendChild(newCell);
       }
     }
+
+    this.solveableCountSpan.textContent = this.checkSolveableNodes().toString();
 
     this.gameBoard.onclick = (event) => {
       if (event.target instanceof HTMLDivElement) {
@@ -79,7 +107,14 @@ export class Game {
   
           if (this.selectedList.length === MAX_SELECT) {
             this.updateCells();
-            this.pathFinding();
+            const path = this.pathFinding();
+            const isSolve = path.length > 0;
+
+            if (isSolve) {
+              this.solve(path);
+            } else {
+              this.clearSelect();
+            }
             return;
           }
         } else if (isSelected) {
@@ -132,6 +167,38 @@ export class Game {
     })
   }
 
+  checkSolveableNodes() {
+    let solveableNodeCount = 0;
+    const searchingArr = [...this.blockList];
+
+    this.blockList.forEach((block, index) => {
+      const { x, y } = block;
+
+      searchingArr.splice(index, 1);
+      const currentBlock = this.matrix.nodes[y][x];
+      searchingArr.some((search) => {
+        const searchBlock = this.matrix.nodes[search.y][search.x];
+        
+        if (this.matrix.types[y][x] === this.matrix.types[search.y][search.x]) {
+          currentBlock.setIsWalkable(true);
+          searchBlock.setIsWalkable(true);
+          const path = this.aStarInstance.findPath(currentBlock.position, searchBlock.position);
+          currentBlock.setIsWalkable(false);
+          searchBlock.setIsWalkable(false);
+
+          if (path.length > 0) {
+            console.log(currentBlock.position, searchBlock.position);
+            solveableNodeCount++;
+            return;
+          }
+        }
+      });
+      searchingArr.splice(index, 0, block);
+    })
+
+    return solveableNodeCount;
+  }
+
   setIsWalkable({ x, y }: Point, flag: boolean) {
     this.matrix.nodes[y][x].setIsWalkable(flag);
   }
@@ -149,6 +216,9 @@ export class Game {
   }
 
   solve(path: number[][]) {
+    const firstNode = path[0];
+    const lastNode = path[path.length - 1];
+  
     for (let i = 0 ; i < path.length - 1; i++) {
       const currentNode = path[i];
       const nextNode = path[i + 1];
@@ -162,7 +232,11 @@ export class Game {
     }
 
     setTimeout(() => {
+      this.setIsWalkable({ x: firstNode[0], y: firstNode[1] }, true);
+      this.setIsWalkable({ x: lastNode[0], y: lastNode[1] }, true);
+
       this.clearSelect();
+      this.solveableCountSpan.textContent = this.checkSolveableNodes().toString();
     }, 500);
   }
 
@@ -172,21 +246,17 @@ export class Game {
 
     if (this.matrix.types[start.y][start.x] !== this.matrix.types[end.y][end.x]) {
       this.clearSelect();
-      return;
+      return [];
     }
 
     this.setIsWalkable(start, true);
     this.setIsWalkable(end, true);
 
     const path = this.aStarInstance.findPath(start, end);
-    const isSolve = path.length > 0;
 
-    if (isSolve) {
-      this.solve(path);
-    } else {
-      this.setIsWalkable(start, false);
-      this.setIsWalkable(end, false);
-      this.clearSelect();
-    }
+    this.setIsWalkable(start, false);
+    this.setIsWalkable(end, false);
+
+    return path;
   }
 }
