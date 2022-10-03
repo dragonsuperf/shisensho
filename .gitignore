@@ -103,4 +103,5 @@ dist
 # TernJS port file
 .tern-port
 
+# 빌드된 파일들
 dist/
