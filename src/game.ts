@@ -6,7 +6,7 @@ const alphabets = Array(26).fill(0).map((_, index) => String.fromCharCode(97 + i
 const originMahjongArr = [...oneToNineArr, 
                           ...alphabets];
 const mahjongArr = [...originMahjongArr, ...originMahjongArr];
-const gameSize = 15;
+const GAME_SIZE = 15;
 
 interface Point {
   x: number;
@@ -33,20 +33,19 @@ export class Game {
     this.gameBoard = gameBoard;
     this.aStarInstance = new AStarFinder({
       grid: {
-        width: gameSize,
-        height: gameSize,
+        width: GAME_SIZE,
+        height: GAME_SIZE,
         densityOfObstacles: 3,
       },
       diagonalAllowed: false,
       heuristic: 'Manhattan',
     });
-    this.matrix = { nodes: this.aStarInstance.getGrid().getGridNodes(), types: Array.from(Array(gameSize), () => new Array(gameSize)) };
-    this.cellList = Array.from(Array(gameSize), () => new Array(gameSize));
+    this.matrix = { nodes: this.aStarInstance.getGrid().getGridNodes(), types: Array.from(Array(GAME_SIZE), () => new Array(GAME_SIZE)) };
+    this.cellList = Array.from(Array(GAME_SIZE), () => new Array(GAME_SIZE));
     this.selectedList = [];
   }
 
   public initGameBoard() {
-    let count = 0;
     for (let i = 0 ; i < this.matrix.nodes.length; i++) {
       const row = this.matrix.nodes[i];
       for (let j = 0; j < row.length; j++) {
@@ -60,7 +59,6 @@ export class Game {
           let currentMahjong = this.selectRandomMahjong();
           this.matrix.types[i][j] = currentMahjong;
           newCell.textContent = currentMahjong;
-          count++;
         }
 
         this.cellList[j][i] = newCell;
